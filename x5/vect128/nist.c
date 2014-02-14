@@ -78,7 +78,7 @@ HashReturn InitIV(hashState_sd *state, int hashbitlen, const u32 *IV) {
 /* 
  * Initialize the hashState_sd.
  */
-HashReturn Init(hashState_sd *state, int hashbitlen) {
+HashReturn init_simd(hashState_sd *state, int hashbitlen) {
   HashReturn r;
   char *init;
 
@@ -116,7 +116,7 @@ HashReturn Init(hashState_sd *state, int hashbitlen) {
 
 
 
-HashReturn Update(hashState_sd *state, const BitSequence *data, DataLength databitlen) {
+HashReturn update_simd(hashState_sd *state, const BitSequence *data, DataLength databitlen) {
   unsigned current;
   unsigned int bs = state->blocksize;
   static int align = -1;
@@ -169,7 +169,7 @@ HashReturn Update(hashState_sd *state, const BitSequence *data, DataLength datab
   return SUCCESS;
 }
 
-HashReturn Final(hashState_sd *state, BitSequence *hashval) {
+HashReturn final_simd(hashState_sd *state, BitSequence *hashval) {
 #ifdef HAS_64
   u64 l;
   int current = state->count & (state->blocksize - 1);
@@ -246,8 +246,8 @@ HashReturn Final(hashState_sd *state, BitSequence *hashval) {
     BitSequence mask = 0xff << (8 - (state->hashbitlen%8));
     hashval[state->hashbitlen/8 + 1] = bs[state->hashbitlen/8 + 1] & mask;
   }
-//free(state->buffer);
-//free(state->A);
+//  free(state->buffer);
+//  free(state->A);
   return SUCCESS;
 }
 

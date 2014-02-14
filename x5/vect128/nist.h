@@ -37,9 +37,9 @@ typedef struct {
  * NIST API
  */
 
-HashReturn Init(hashState_sd *state, int hashbitlen);
-HashReturn Update(hashState_sd *state, const BitSequence *data, DataLength databitlen);
-HashReturn Final(hashState_sd *state, BitSequence *hashval);
+HashReturn init_simd(hashState_sd *state, int hashbitlen);
+HashReturn update_simd(hashState_sd *state, const BitSequence *data, DataLength databitlen);
+HashReturn final_simd(hashState_sd *state, BitSequence *hashval);
 //HashReturn Hash(int hashbitlen, const BitSequence *data, DataLength databitlen,
 //                BitSequence *hashval);
 

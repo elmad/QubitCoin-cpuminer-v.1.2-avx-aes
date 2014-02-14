@@ -5,6 +5,7 @@
 #include <stdint.h>
 
 #include "x5/luffa_for_sse2.h" //sse2 opt
+//#include "x5/luffa/ssse3_x64asm-PS-2/luffa_for_x64asm.h"
 //--ch h----
 #include "x5/cubehash_sse2.h" //sse2
 //----------
@@ -13,74 +14,63 @@
 //-----simd vect128---------
 #include "x5/vect128/nist.h"
 //---echo ----------------
-#include "x5/sph_echo.h"
+#define _ECHO_VPERM_
+#define AES-NI
+#include "x5/echo512/ccalik/aesni/hash_api.h"
 
 
 /* Move init out of loop, so init once externally, and then use one single memcpy with that bigger memory block */
 typedef struct {
+	hashState_luffa luffa1;
+	cubehashParam cubehash1;
 	sph_shavite512_context  shavite1;
-	sph_echo512_context		echo1;
+	hashState_echo		echo1;
+	hashState_sd simd1;
 } qubithash_context_holder;
 
 qubithash_context_holder base_contexts;
-//--luffa var --
-hashState base_context_luffa;
-//--cubehash var --
-cubehashParam base_context_cubehash;
 
 void init_qubithash_contexts()
 {
   //-- luffa init --
-  init_luffa(&base_context_luffa,512);
+  init_luffa(&base_contexts.luffa1,512);
   //--cubehash init--
-  cubehashInit(&base_context_cubehash,512,16,32);
+  cubehashInit(&base_contexts.cubehash1,512,16,32);
   //---------------
   sph_shavite512_init(&base_contexts.shavite1);
    //-------------------------------
-  sph_echo512_init(&base_contexts.echo1);
+  init_echo(&base_contexts.echo1, 512);
+  //--simd init----
+//  init_simd(&base_contexts.simd1,512);
 }
 
 static void qubithash(void *state, const void *input)
 {
 	qubithash_context_holder ctx;
-	//-- local luffa var --
-	hashState			 ctx_luffa;
-	//---local cubehash var ---
-	cubehashParam		 ctx_cubehash;
-	//---local simd var ---
-	hashState_sd *	     ctx_simd1;
-	
-    uint32_t hashA[16], hashB[16];	
-	
+
+	uint32_t hashA[16], hashB[16];
+
 	memcpy(&ctx, &base_contexts, sizeof(base_contexts));
-	//--luffa copy date --
-	memcpy(&ctx_luffa,&base_context_luffa,sizeof(hashState));
-	//--cubehash copy date----
-	memcpy(&ctx_cubehash,&base_context_cubehash,sizeof(cubehashParam));
-		
+	init_simd(&ctx.simd1, 512);
 	//-------luffa sse2--------
-   update_luffa(&ctx_luffa,(const BitSequence *)input,640);
-   final_luffa(&ctx_luffa,(BitSequence *)hashA);	
+	update_luffa(&ctx.luffa1,(const BitSequence *)input,640);
+	final_luffa(&ctx.luffa1,(BitSequence *)hashA);	
     //---cubehash sse2---    
-	cubehashUpdate(&ctx_cubehash,(const byte *)hashA,64);
-	cubehashDigest(&ctx_cubehash,(byte *)hashB);
+	cubehashUpdate(&ctx.cubehash1,(const byte *)hashA,64);
+	cubehashDigest(&ctx.cubehash1,(byte *)hashB);
   //------shavite  ------	
-    sph_shavite512 (&ctx.shavite1, hashB, 64);   
-    sph_shavite512_close(&ctx.shavite1, hashA);  
+	sph_shavite512 (&ctx.shavite1, hashB, 64);   
+	sph_shavite512_close(&ctx.shavite1, hashA);  
  //Hash_sh(512,(const BitSequence *)hashB,512,(BitSequence *)hashA);
 //-------simd512 vect128 --------------	
-	ctx_simd1=malloc(sizeof(hashState_sd));
-	Init(ctx_simd1,512);
-	Update(ctx_simd1,(const BitSequence *)hashA,512);
-	Final(ctx_simd1,(BitSequence *)hashB);
-	free(ctx_simd1->buffer);
-    free(ctx_simd1->A);
-	free(ctx_simd1);
+	update_simd(&ctx.simd1,(const BitSequence *)hashA,512);
+	final_simd(&ctx.simd1,(BitSequence *)hashB);
 //-----------------	
-	sph_echo512 (&ctx.echo1, hashB, 64);   
-    sph_echo512_close(&ctx.echo1, hashA); 
+	update_echo (&ctx.echo1, (const BitSequence *) hashB, 512);   
+        final_echo(&ctx.echo1, (BitSequence *)hashA); 
 
-
+	free(ctx.simd1.buffer);
+	free(ctx.simd1.A);
 	memcpy(state, hashA, 32);
 	
 }
