@@ -52,12 +52,12 @@ static void qubithash(void *state, const void *input)
 {
 	qubithash_context_holder ctx;
 
-	DATA_ALIGN(uint32_t hashA[32], 128);
+	DATA_ALIGN(uint32_t hashA[32], 16);
 	uint32_t *hashB = hashA + 16;
 	memcpy(&ctx, &base_contexts, sizeof(base_contexts));
 
 	//-------luffa sse2--------
-	update_luffa(&ctx.luffa1,(const BitSequence *)input,512);
+	update_luffa(&ctx.luffa1,(const BitSequence *)input,640);
 	final_luffa(&ctx.luffa1,(BitSequence *)hashA);	
     //---cubehash sse2---    
 	cubehashUpdate(&ctx.cubehash1,(const byte *)hashA,64);
