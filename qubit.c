@@ -18,7 +18,11 @@
 #define AES-NI
 #include "x5/echo512/ccalik/aesni/hash_api.h"
 
-
+#if defined(__GNUC__)
+	#define  DATA_ALIGN(x,y) x __attribute__ ((aligned(y)))
+#else
+	#define DATA_ALIGN(x,y) __declspec(align(y)) x
+#endif
 /* Move init out of loop, so init once externally, and then use one single memcpy with that bigger memory block */
 typedef struct {
 	hashState_luffa luffa1;
@@ -41,19 +45,19 @@ void init_qubithash_contexts()
    //-------------------------------
   init_echo(&base_contexts.echo1, 512);
   //--simd init----
-//  init_simd(&base_contexts.simd1,512);
+  init_sd(&base_contexts.simd1,512);
 }
 
 static void qubithash(void *state, const void *input)
 {
 	qubithash_context_holder ctx;
 
-	uint32_t hashA[16], hashB[16];
-
+	DATA_ALIGN(uint32_t hashA[32], 128);
+	uint32_t *hashB = hashA + 16;
 	memcpy(&ctx, &base_contexts, sizeof(base_contexts));
-	init_simd(&ctx.simd1, 512);
+
 	//-------luffa sse2--------
-	update_luffa(&ctx.luffa1,(const BitSequence *)input,640);
+	update_luffa(&ctx.luffa1,(const BitSequence *)input,512);
 	final_luffa(&ctx.luffa1,(BitSequence *)hashA);	
     //---cubehash sse2---    
 	cubehashUpdate(&ctx.cubehash1,(const byte *)hashA,64);
@@ -63,14 +67,12 @@ static void qubithash(void *state, const void *input)
 	sph_shavite512_close(&ctx.shavite1, hashA);  
  //Hash_sh(512,(const BitSequence *)hashB,512,(BitSequence *)hashA);
 //-------simd512 vect128 --------------	
-	update_simd(&ctx.simd1,(const BitSequence *)hashA,512);
-	final_simd(&ctx.simd1,(BitSequence *)hashB);
+	update_sd(&ctx.simd1,(const BitSequence *)hashA,512);
+	final_sd(&ctx.simd1,(BitSequence *)hashB);
 //-----------------	
 	update_echo (&ctx.echo1, (const BitSequence *) hashB, 512);   
         final_echo(&ctx.echo1, (BitSequence *)hashA); 
 
-	free(ctx.simd1.buffer);
-	free(ctx.simd1.A);
 	memcpy(state, hashA, 32);
 	
 }
