@@ -301,6 +301,34 @@ HashReturn init_luffa(hashState_luffa *state, int hashbitlen)
     return SUCCESS;
 }
 
+static void process_last_msgs512(hashState *state)
+{
+    uint32 tail_len;
+    int i = 0;
+
+    tail_len = ((uint32) state->bitlen[1]) % MSG_BLOCK_BIT_LEN;
+
+    i = tail_len / 8;
+
+    if (!(tail_len % 8)) {
+        ((uint8*)state->buffer)[i] = 0x80;
+    } else {
+        ((uint8*)state->buffer)[i] &= (0xff << (8 - (tail_len % 8)));
+        ((uint8*)state->buffer)[i] |= (0x80 >> (tail_len % 8));
+    }
+
+    i++;
+
+    for (;i<32;i++) ((uint8*)state->buffer)[i] = 0;
+
+    for (i=0;i<8;i++) {
+        state->buffer[i] = BYTES_SWAP32(state->buffer[i]);
+    }
+    rnd512(state);
+
+    return;
+}
+
 HashReturn update_luffa(hashState_luffa *state, const BitSequence *data, DataLength databitlen)
 {
     HashReturn ret=SUCCESS;
@@ -333,6 +361,14 @@ HashReturn update_luffa(hashState_luffa *state, const BitSequence *data, DataLen
 	databitlen -= MSG_BLOCK_BIT_LEN; //qui per noi se ne va a 0!!!
 	data += MSG_BLOCK_BYTE_LEN;  //512
 
+	 /* All remaining data copy to buffer */
+	len = 128 >> 3;
+	for(i=0;i<len;i++) {
+            p[state->rembitlen / 8 + i] = data[i];
+	}
+        
+	state->rembitlen += databitlen;
+	
     return ret;
 }
    
@@ -340,6 +376,7 @@ HashReturn update_luffa(hashState_luffa *state, const BitSequence *data, DataLen
 HashReturn final_luffa(hashState_luffa *state, BitSequence *hashval) 
 {
 
+	process_last_msgs512(state);
     finalization512(state, (uint32*) hashval);
   
     return SUCCESS;
