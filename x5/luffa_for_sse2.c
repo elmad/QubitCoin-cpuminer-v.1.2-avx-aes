@@ -338,7 +338,9 @@ HashReturn update_luffa(hashState_luffa *state, const BitSequence *data, DataLen
     int i;
     uint8 *p = (uint8*)state->buffer;
 
-    
+    if ((state->bitlen[1] += databitlen) < databitlen) {
+        state->bitlen[0] += 1;
+    }
 
 	cpylen = MSG_BLOCK_BYTE_LEN;  //lavora sui primi 256 byte
 
