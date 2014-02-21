@@ -400,27 +400,12 @@ HashReturn init_echo(hashState_echo *ctx, int nHashSize)
 	ctx->processed_bits = 0;
 	ctx->uBufferBytes = 0;
 
-	switch(nHashSize)
-	{
-		case 256:
-			ctx->uHashSize = 256;
-			ctx->uBlockLength = 192;
-			ctx->uRounds = 8;
-			ctx->hashsize = _mm_set_epi32(0, 0, 0, 0x00000100);
-			ctx->const1536 = _mm_set_epi32(0x00000000, 0x00000000, 0x00000000, 0x00000600);
-			break;
-
-		case 512:
-			ctx->uHashSize = 512;
-			ctx->uBlockLength = 128;
-			ctx->uRounds = 10;
-			ctx->hashsize = _mm_set_epi32(0, 0, 0, 0x00000200);
-			ctx->const1536 = _mm_set_epi32(0x00000000, 0x00000000, 0x00000000, 0x00000400);
-			break;
-
-		default:
-			return BAD_HASHBITLEN;
-	}
+	ctx->uHashSize = 512;
+	ctx->uBlockLength = 128;
+	ctx->uRounds = 10;
+	ctx->hashsize = _mm_set_epi32(0, 0, 0, 0x00000200);
+	ctx->const1536 = _mm_set_epi32(0x00000000, 0x00000000, 0x00000000, 0x00000400);
+	
 
 
 	for(i = 0; i < 4; i++)

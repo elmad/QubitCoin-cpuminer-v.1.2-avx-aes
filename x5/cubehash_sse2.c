@@ -128,9 +128,6 @@ int cubehashInit(cubehashParam *sp, int hashbitlen, int rounds, int blockbytes)
 {
     int i;
 
-    if (hashbitlen < 8) return BAD_HASHBITLEN;
-    if (hashbitlen > 512) return BAD_HASHBITLEN;
-    if (hashbitlen != 8 * (hashbitlen / 8)) return BAD_HASHBITLEN;
 
     /* Sanity checks */
     if (rounds <= 0 || rounds > 32) rounds = CUBEHASH_ROUNDS;
