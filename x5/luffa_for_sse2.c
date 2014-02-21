@@ -393,12 +393,10 @@ HashReturn update_luffa(hashState_luffa *state, const BitSequence *data, DataLen
 
 HashReturn final_luffa(hashState_luffa *state, BitSequence *hashval) 
 {
-    HashReturn ret;
 
-            process_last_msgs512(state);
-            finalization512(state, (uint32*) hashval);
-            ret = SUCCESS;
-    return ret;
+    finalization512(state, (uint32*) hashval);
+  
+    return SUCCESS;
 }
 
 /***************************************************/
