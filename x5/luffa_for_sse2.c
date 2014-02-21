@@ -301,7 +301,7 @@ HashReturn init_luffa(hashState_luffa *state, int hashbitlen)
     return SUCCESS;
 }
 
-static void process_last_msgs512(hashState *state)
+static void process_last_msgs512(hashState_luffa *state)
 {
     uint32 tail_len;
     int i = 0;
