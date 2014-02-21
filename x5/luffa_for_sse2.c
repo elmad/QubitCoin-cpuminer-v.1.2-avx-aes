@@ -294,7 +294,7 @@ HashReturn init_luffa(hashState_luffa *state, int hashbitlen)
     state->bitlen[1] = 0;
     state->rembitlen = 0;
 
-	memset(buffer, 0, sizeof buffer );
+	memset(state->buffer, 0, sizeof state->buffer );
 
     return SUCCESS;
 }
@@ -487,7 +487,7 @@ static void finalization512(hashState_luffa *state, uint32 *b)
     int i;
 
     /*---- blank round with m=0 ----*/
-	memset(buffer, 0, sizeof buffer );
+	memset(state->buffer, 0, sizeof state->buffer );
     rnd512(state);
 
     t[0] = _mm_load_si128(&state->chainv[0]);
@@ -509,7 +509,7 @@ static void finalization512(hashState_luffa *state, uint32 *b)
 
     for (i=0;i<8;i++) b[i] = BYTES_SWAP32(hash[i]);
 
-	memset(buffer, 0, sizeof buffer );
+	memset(state->buffer, 0, sizeof state->buffer );
     rnd512(state);
 
     t[0] = _mm_load_si128(&state->chainv[0]);
