@@ -319,17 +319,19 @@ HashReturn update_luffa(hashState_luffa *state, const BitSequence *data, DataLen
 		state->buffer[i] = BYTES_SWAP32(((uint32*)data)[i]);
 	}
          
-	rnd512(state); //funziona rnd512 sul primo blocco di 256
+	rnd512(state); //rnd512 sul primo blocco di 256
 
-        databitlen -= (cpylen << 3); //ora bitlen = 256
-        data += cpylen; //posiziona il puntatore dei dati su 256 (32byte)
-        state->rembitlen = 0;   
+	databitlen -= (cpylen << 3); //ora bitlen = 256
+	data += cpylen; //posiziona il puntatore dei dati su 256 (32byte)
+	state->rembitlen = 0;   
 
-	    state->buffer[i] = BYTES_SWAP32(((uint32*)data)[i]); //EndianSwap degli altri 256
-            rnd512(state); //rnd ultimi 256biy
+	for (i=0;i<8;i++) {
+		state->buffer[i] = BYTES_SWAP32(((uint32*)data)[i]);
+	}
+	rnd512(state); //rnd ultimi 256bit
 
-            databitlen -= MSG_BLOCK_BIT_LEN; //qui per noi se ne va a 0!!!
-            data += MSG_BLOCK_BYTE_LEN;  //512
+	databitlen -= MSG_BLOCK_BIT_LEN; //qui per noi se ne va a 0!!!
+	data += MSG_BLOCK_BYTE_LEN;  //512
 
     return ret;
 }
