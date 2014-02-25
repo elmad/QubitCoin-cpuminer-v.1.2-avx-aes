@@ -303,7 +303,16 @@ HashReturn init_luffa(hashState_luffa *state, int hashbitlen)
 /* state: hash context    */
 
 	__m128i t[2]; 
-    __m128i chainv[10]; 
+    __m128i chainv0; 
+	__m128i chainv1;
+	__m128i chainv2;
+	__m128i chainv3;
+	__m128i chainv4;
+	__m128i chainv5;
+	__m128i chainv5;
+	__m128i chainv7;
+	__m128i chainv8;
+	__m128i chainv9;
     __m128i msg[2]; 
     __m128i tmp[2]; 
     __m128i x[8]; 
@@ -311,16 +320,16 @@ HashReturn init_luffa(hashState_luffa *state, int hashbitlen)
 #define RND512(state) do{\
 //static void rnd512(hashState_luffa *state)
 
-    chainv[0] = _mm_load_si128(&state->chainv[0]); \
-    chainv[1] = _mm_load_si128(&state->chainv[1]); \
-    chainv[2] = _mm_load_si128(&state->chainv[2]); \
-    chainv[3] = _mm_load_si128(&state->chainv[3]); \
-    chainv[4] = _mm_load_si128(&state->chainv[4]); \
-    chainv[5] = _mm_load_si128(&state->chainv[5]); \
-    chainv[6] = _mm_load_si128(&state->chainv[6]); \
-    chainv[7] = _mm_load_si128(&state->chainv[7]); \
-    chainv[8] = _mm_load_si128(&state->chainv[8]); \
-    chainv[9] = _mm_load_si128(&state->chainv[9]); \
+    chainv0 = _mm_load_si128(&state->chainv[0]); \
+    chainv1 = _mm_load_si128(&state->chainv[1]); \
+    chainv2 = _mm_load_si128(&state->chainv[2]); \
+    chainv3 = _mm_load_si128(&state->chainv[3]); \
+    chainv4 = _mm_load_si128(&state->chainv[4]); \
+    chainv5 = _mm_load_si128(&state->chainv[5]); \
+    chainv6 = _mm_load_si128(&state->chainv[6]); \
+    chainv7 = _mm_load_si128(&state->chainv[7]); \
+    chainv8 = _mm_load_si128(&state->chainv[8]); \
+    chainv9 = _mm_load_si128(&state->chainv[9]); \
 
     t[0] = _mm_load_si128(&chainv[0]); \
     t[1] = _mm_load_si128(&chainv[1]); \
