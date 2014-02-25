@@ -4,7 +4,7 @@
 #include <string.h>
 #include <stdint.h>
 
-#include "x5/luffa_for_sse2.h" //sse2 opt
+#include "x5/luffa_for_sse2.c" //sse2 opt
 //#include "x5/luffa/ssse3_x64asm-PS-2/luffa_for_x64asm.h"
 //--ch h----
 #include "x5/cubehash_sse2.h" //sse2
