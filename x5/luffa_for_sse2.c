@@ -302,35 +302,25 @@ HashReturn init_luffa(hashState_luffa *state, int hashbitlen)
 /* Round function         */
 /* state: hash context    */
 
-	__m128i t[2]; 
-    __m128i chainv0; 
-	__m128i chainv1;
-	__m128i chainv2;
-	__m128i chainv3;
-	__m128i chainv4;
-	__m128i chainv5;
-	__m128i chainv5;
-	__m128i chainv7;
-	__m128i chainv8;
-	__m128i chainv9;
-    __m128i msg[2]; 
-    __m128i tmp[2]; 
-    __m128i x[8]; 
-	int i =0;
 #define RND512(state) do{\
-//static void rnd512(hashState_luffa *state)
-
-    chainv0 = _mm_load_si128(&state->chainv[0]); \
-    chainv1 = _mm_load_si128(&state->chainv[1]); \
-    chainv2 = _mm_load_si128(&state->chainv[2]); \
-    chainv3 = _mm_load_si128(&state->chainv[3]); \
-    chainv4 = _mm_load_si128(&state->chainv[4]); \
-    chainv5 = _mm_load_si128(&state->chainv[5]); \
-    chainv6 = _mm_load_si128(&state->chainv[6]); \
-    chainv7 = _mm_load_si128(&state->chainv[7]); \
-    chainv8 = _mm_load_si128(&state->chainv[8]); \
-    chainv9 = _mm_load_si128(&state->chainv[9]); \
-
+    __m128i t[2]; \
+    __m128i chainv[10]; \
+    __m128i msg[2]; \
+    __m128i tmp[2]; \
+    __m128i x[8]; \
+    int i; \
+	\
+    chainv[0] = _mm_load_si128(&state->chainv[0]); \
+    chainv[1] = _mm_load_si128(&state->chainv[1]); \
+    chainv[2] = _mm_load_si128(&state->chainv[2]); \
+    chainv[3] = _mm_load_si128(&state->chainv[3]); \
+    chainv[4] = _mm_load_si128(&state->chainv[4]); \
+    chainv[5] = _mm_load_si128(&state->chainv[5]); \
+    chainv[6] = _mm_load_si128(&state->chainv[6]); \
+    chainv[7] = _mm_load_si128(&state->chainv[7]); \
+    chainv[8] = _mm_load_si128(&state->chainv[8]); \
+    chainv[9] = _mm_load_si128(&state->chainv[9]); \
+	\
     t[0] = _mm_load_si128(&chainv[0]); \
     t[1] = _mm_load_si128(&chainv[1]); \
     t[0] = _mm_xor_si128(t[0], chainv[2]); \
@@ -341,9 +331,9 @@ HashReturn init_luffa(hashState_luffa *state, int hashbitlen)
     t[1] = _mm_xor_si128(t[1], chainv[7]); \
     t[0] = _mm_xor_si128(t[0], chainv[8]); \
     t[1] = _mm_xor_si128(t[1], chainv[9]); \
-
+	\
     MULT2(t[0],t[1],tmp[0],tmp[1]); \
-
+	\
     msg[0] = _mm_loadu_si128 ((__m128i*)&state->buffer[0]); \
     msg[1] = _mm_loadu_si128 ((__m128i*)&state->buffer[4]); \
     msg[0] = _mm_shuffle_epi32(msg[0], 27); \
@@ -353,62 +343,62 @@ HashReturn init_luffa(hashState_luffa *state, int hashbitlen)
         chainv[i*2] = _mm_xor_si128(chainv[i*2], t[0]); \
         chainv[1+i*2] = _mm_xor_si128(chainv[1+i*2], t[1]); \
     }\
-
+	\
     t[0] = _mm_load_si128(&chainv[0]); \
     t[1] = _mm_load_si128(&chainv[1]); \
-
+	\
     MULT2(chainv[0],chainv[1],tmp[0],tmp[1]); \
     chainv[0] = _mm_xor_si128(chainv[0], chainv[2]); \
     chainv[1] = _mm_xor_si128(chainv[1], chainv[3]); \
-
+	\
     MULT2(chainv[2],chainv[3],tmp[0],tmp[1]); \
     chainv[2] = _mm_xor_si128(chainv[2], chainv[4]); \
     chainv[3] = _mm_xor_si128(chainv[3], chainv[5]); \
-
+	\
     MULT2(chainv[4],chainv[5],tmp[0],tmp[1]); \
     chainv[4] = _mm_xor_si128(chainv[4], chainv[6]); \
     chainv[5] = _mm_xor_si128(chainv[5], chainv[7]); \
-
+	\
     MULT2(chainv[6],chainv[7],tmp[0],tmp[1]); \
     chainv[6] = _mm_xor_si128(chainv[6], chainv[8]); \
     chainv[7] = _mm_xor_si128(chainv[7], chainv[9]); \
-
+	\
     MULT2(chainv[8],chainv[9],tmp[0],tmp[1]); \
     chainv[8] = _mm_xor_si128(chainv[8], t[0]); \
     chainv[9] = _mm_xor_si128(chainv[9], t[1]); \
-
+	\
     t[0] = _mm_load_si128(&chainv[8]); \
     t[1] = _mm_load_si128(&chainv[9]); \
-
+	\
     MULT2(chainv[8],chainv[9],tmp[0],tmp[1]); \
     chainv[8] = _mm_xor_si128(chainv[8], chainv[6]); \
     chainv[9] = _mm_xor_si128(chainv[9], chainv[7]); \
-
+	\
     MULT2(chainv[6],chainv[7],tmp[0],tmp[1]); \
     chainv[6] = _mm_xor_si128(chainv[6], chainv[4]); \
     chainv[7] = _mm_xor_si128(chainv[7], chainv[5]); \
-
+	\
     MULT2(chainv[4],chainv[5],tmp[0],tmp[1]); \
     chainv[4] = _mm_xor_si128(chainv[4], chainv[2]); \
     chainv[5] = _mm_xor_si128(chainv[5], chainv[3]); \
-
+	\
     MULT2(chainv[2],chainv[3],tmp[0],tmp[1]); \
     chainv[2] = _mm_xor_si128(chainv[2], chainv[0]); \
     chainv[3] = _mm_xor_si128(chainv[3], chainv[1]); \
-
+	\
     MULT2(chainv[0],chainv[1],tmp[0],tmp[1]); \
     chainv[0] = _mm_xor_si128(chainv[0], t[0]); \
     chainv[1] = _mm_xor_si128(chainv[1], t[1]); \
-
+	\
 	#pragma unroll
     for (i=0;i<5;i++){ \
         chainv[i*2] = _mm_xor_si128(chainv[i*2], msg[0]); \
         chainv[1+i*2] = _mm_xor_si128(chainv[1+i*2], msg[1]); \
-
+	\
         MULT2(msg[0],msg[1],tmp[0],tmp[1]); \
     } \
-
-    /* Tweak() */
+	\
+    /* Tweak() */ \
     t[0] = _mm_slli_epi32(chainv[3], 1); \
     t[1] = _mm_srli_epi32(chainv[3], 31); \
     chainv[3] = _mm_or_si128(t[0], t[1]); \
@@ -421,21 +411,19 @@ HashReturn init_luffa(hashState_luffa *state, int hashbitlen)
     t[0] = _mm_slli_epi32(chainv[9], 4); \
     t[1] = _mm_srli_epi32(chainv[9], 28); \
     chainv[9] = _mm_or_si128(t[0], t[1]); \
-
+	\
     NMLTOM1024(chainv[0],chainv[2],chainv[4],chainv[6], x[0],x[1],x[2],x[3], \
             chainv[1],chainv[3],chainv[5],chainv[7], x[4],x[5],x[6],x[7]); \
 	#pragma unroll
     for (i=0;i<8;i++) STEP_PART(&x[0],&CNS128[i*2],&tmp[0]); \
-    
-
+    \
     MIXTON1024(x[0],x[1],x[2],x[3], chainv[0],chainv[2],chainv[4],chainv[6], \
             x[4],x[5],x[6],x[7], chainv[1],chainv[3],chainv[5],chainv[7]); \
-
+	\
     /* Process last 256-bit block */
 	#pragma unroll
     for (i=0;i<8;i++) STEP_PART2(chainv[8],chainv[9],t[0],t[1],CNS128[16+2*i],CNS128[17+2*i],tmp[0],tmp[1]); \
-
-
+	\
     state->chainv[0] = _mm_load_si128(&chainv[0]); \
     state->chainv[1] = _mm_load_si128(&chainv[1]); \
     state->chainv[2] = _mm_load_si128(&chainv[2]); \
@@ -448,16 +436,12 @@ HashReturn init_luffa(hashState_luffa *state, int hashbitlen)
     state->chainv[9] = _mm_load_si128(&chainv[9]); \
 } while(0)
 
-	uint8 *p;
-	uint32 *b;
-	__m128i t[2]; 
-    uint32 hash[8]; 
 #define LUFFA_HASH(state,data,databitlen,hashval) do{ \
 //HashReturn update_luffa(hashState_luffa *state, const BitSequence *data, DataLength databitlen)
 //{
   //  HashReturn ret=SUCCESS;
-    i=0; \
-    *p = (uint8*)state->buffer; \
+    int i; \
+    uint8 *p = (uint8*)state->buffer; \
 	#pragma unroll
 	for (i=0;i<8;i++) state->buffer[i] = BYTES_SWAP32(((uint32*)data)[i]); \
 	rnd512(state); \
@@ -480,8 +464,10 @@ HashReturn init_luffa(hashState_luffa *state, int hashbitlen)
 
 //HashReturn final_luffa(hashState_luffa *state, BitSequence *hashval) 
 //{
-	*b = (uint32*) hashval; \
-    i = 0;
+	uint32 *b = (uint32*) hashval; \
+    __m128i t[2]; \
+    uint32 hash[8]; \
+    int i; \
 
     /*---- blank round with m=0 ----*/
     memset(state->buffer, 0, sizeof state->buffer ); \
