@@ -57,8 +57,9 @@ static void qubithash(void *state, const void *input)
 	memcpy(&ctx, &base_contexts, sizeof(base_contexts));
 
 	//-------luffa sse2--------
-	update_luffa(&ctx.luffa1,(const BitSequence *)input,640);
-	final_luffa(&ctx.luffa1,(BitSequence *)hashA);	
+//	update_luffa(&ctx.luffa1,(const BitSequence *)input,640);
+//	final_luffa(&ctx.luffa1,(BitSequence *)hashA);	
+	LUFFA_HASH(&ctx.luffa1,(const BitSequence *)input,640,(BitSequence *)hashA)
     //---cubehash sse2---    
 	cubehashUpdate(&ctx.cubehash1,(const byte *)hashA,64);
 	cubehashDigest(&ctx.cubehash1,(byte *)hashB);

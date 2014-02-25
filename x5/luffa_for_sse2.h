@@ -46,5 +46,5 @@
 /*********************************/
 
 HashReturn init_luffa(hashState_luffa *state, int hashbitlen);
-HashReturn update_luffa(hashState_luffa *state, const BitSequence *data, DataLength databitlen);
-HashReturn final_luffa(hashState_luffa *state, BitSequence *hashval);
+//HashReturn update_luffa(hashState_luffa *state, const BitSequence *data, DataLength databitlen);
+//HashReturn final_luffa(hashState_luffa *state, BitSequence *hashval);
