@@ -302,15 +302,14 @@ HashReturn init_luffa(hashState_luffa *state, int hashbitlen)
 /* Round function         */
 /* state: hash context    */
 
+	__m128i t[2]; 
+    __m128i chainv[10]; 
+    __m128i msg[2]; 
+    __m128i tmp[2]; 
+    __m128i x[8]; 
+	int i =0;
 #define RND512(state) do{\
 //static void rnd512(hashState_luffa *state)
-
-    __m128i t[2]; \
-    __m128i chainv[10]; \
-    __m128i msg[2]; \
-    __m128i tmp[2]; \
-    __m128i x[8]; \
-    int i; \
 
     chainv[0] = _mm_load_si128(&state->chainv[0]); \
     chainv[1] = _mm_load_si128(&state->chainv[1]); \
@@ -440,12 +439,16 @@ HashReturn init_luffa(hashState_luffa *state, int hashbitlen)
     state->chainv[9] = _mm_load_si128(&chainv[9]); \
 } while(0)
 
+	uint8 *p;
+	uint32 *b;
+	__m128i t[2]; 
+    uint32 hash[8]; 
 #define LUFFA_HASH(state,data,databitlen,hashval) do{ \
 //HashReturn update_luffa(hashState_luffa *state, const BitSequence *data, DataLength databitlen)
 //{
   //  HashReturn ret=SUCCESS;
-    int i; \
-    uint8 *p = (uint8*)state->buffer; \
+    i=0; \
+    *p = (uint8*)state->buffer; \
 	#pragma unroll
 	for (i=0;i<8;i++) state->buffer[i] = BYTES_SWAP32(((uint32*)data)[i]); \
 	rnd512(state); \
@@ -468,10 +471,8 @@ HashReturn init_luffa(hashState_luffa *state, int hashbitlen)
 
 //HashReturn final_luffa(hashState_luffa *state, BitSequence *hashval) 
 //{
-	uint32 *b = (uint32*) hashval; \
-    __m128i t[2]; \
-    uint32 hash[8]; \
-    int i; \
+	*b = (uint32*) hashval; \
+    i = 0;
 
     /*---- blank round with m=0 ----*/
     memset(state->buffer, 0, sizeof state->buffer ); \
