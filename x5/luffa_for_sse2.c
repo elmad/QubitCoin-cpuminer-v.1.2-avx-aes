@@ -342,17 +342,13 @@ do{ \
 \
         chainv[0] = _mm_xor_si128(chainv[0], t[0]); \
         chainv[1] = _mm_xor_si128(chainv[1], t[1]); \
-		
-		chainv[2] = _mm_xor_si128(chainv[2], t[0]); \
-        chainv[3] = _mm_xor_si128(chainv[3], t[1]);
-		
-		chainv[4] = _mm_xor_si128(chainv[4], t[0]); \
-        chainv[5] = _mm_xor_si128(chainv[5], t[1]);
-		
-		chainv[6] = _mm_xor_si128(chainv[6], t[0]); \
-        chainv[7] = _mm_xor_si128(chainv[7], t[1]);
-		
-		chainv[8] = _mm_xor_si128(chainv[8], t[0]); \
+	chainv[2] = _mm_xor_si128(chainv[2], t[0]); \
+        chainv[3] = _mm_xor_si128(chainv[3], t[1]); \
+	chainv[4] = _mm_xor_si128(chainv[4], t[0]); \
+        chainv[5] = _mm_xor_si128(chainv[5], t[1]); \
+	chainv[6] = _mm_xor_si128(chainv[6], t[0]); \
+        chainv[7] = _mm_xor_si128(chainv[7], t[1]); \
+	chainv[8] = _mm_xor_si128(chainv[8], t[0]); \
         chainv[9] = _mm_xor_si128(chainv[9], t[1]); \
 \
     t[0] = _mm_load_si128(&chainv[0]); \
@@ -398,13 +394,13 @@ do{ \
     chainv[3] = _mm_xor_si128(chainv[3], chainv[1]); \
 	\
     MULT2(chainv[0],chainv[1],tmp[0],tmp[1]); \
-    chainv[0] = _mm_xor_si128(chainv[0], t[0]); \
+c    chainv[0] = _mm_xor_si128(chainv[0], t[0]); \
     chainv[1] = _mm_xor_si128(chainv[1], t[1]); \
 	\
-        chainv[0] = _mm_xor_si128(chainv[0], msg[0]); \
-        chainv[1] = _mm_xor_si128(chainv[1], msg[1]); \
-		MULT2(msg[0],msg[1],tmp[0],tmp[1]); \
-		chainv[2] = _mm_xor_si128(chainv[2], msg[0]); \
+    chainv[0] = _mm_xor_si128(chainv[0], msg[0]); \
+    chainv[1] = _mm_xor_si128(chainv[1], msg[1]); \
+    MULT2(msg[0],msg[1],tmp[0],tmp[1]); \
+    chainv[2] = _mm_xor_si128(chainv[2], msg[0]); \
         chainv[3] = _mm_xor_si128(chainv[3], msg[1]); \
 		MULT2(msg[0],msg[1],tmp[0],tmp[1]); \
 		chainv[4] = _mm_xor_si128(chainv[4], msg[0]); \
@@ -446,8 +442,6 @@ do{ \
 	MIXTON1024(x[0],x[1],x[2],x[3], chainv[0],chainv[2],chainv[4],chainv[6], \
             x[4],x[5],x[6],x[7], chainv[1],chainv[3],chainv[5],chainv[7]); \
 	\
-    /* Process last 256-bit block */
-#pragma unroll for (i=0;i<8;i++) 
 	STEP_PART2(chainv[8],chainv[9],t[0],t[1],CNS128[16+0],CNS128[17],tmp[0],tmp[1]); \
 	STEP_PART2(chainv[8],chainv[9],t[0],t[1],CNS128[16+2],CNS128[17+2],tmp[0],tmp[1]); \
 	STEP_PART2(chainv[8],chainv[9],t[0],t[1],CNS128[16+4],CNS128[17+4],tmp[0],tmp[1]); \
@@ -467,35 +461,35 @@ do{ \
     (state)->chainv[7] = _mm_load_si128(&chainv[7]); \
     (state)->chainv[8] = _mm_load_si128(&chainv[8]); \
     (state)->chainv[9] = _mm_load_si128(&chainv[9]); \
-} while(0)
-
-#define BYTE_SWAP_HASH( buffer, data) do{ \
-	buffer[0] = BYTES_SWAP32((data)[0]); \
-	buffer[1] = BYTES_SWAP32((data)[1]); \
-	buffer[2] = BYTES_SWAP32((data)[2]); \
-	buffer[3] = BYTES_SWAP32((data)[3]); \
-	buffer[4] = BYTES_SWAP32((data)[4]); \
-	buffer[5] = BYTES_SWAP32((data)[5]); \
-	buffer[6] = BYTES_SWAP32((data)[6]); \
-	buffer[7] = BYTES_SWAP32((data)[7]); \
 }while(0)
-	
+
+#define BYTE_SWAP_HASH(buffer ,data) { \
+buffer[0] = BYTES_SWAP32((data[0])); \
+buffer[1] = BYTES_SWAP32((data[1])); \
+buffer[2] = BYTES_SWAP32((data[2])); \
+buffer[3] = BYTES_SWAP32((data[3])); \
+buffer[4] = BYTES_SWAP32((data[4])); \
+buffer[5] = BYTES_SWAP32((data[5])); \
+buffer[6] = BYTES_SWAP32((data[6])); \
+buffer[7] = BYTES_SWAP32((data[7])); \
+}
+
 #define LUFFA_HASH(state,data,databitlen,hashval) \
 do{ \
     int i; \
     uint8 *p = (uint8*)state->buffer; \
-	BYTE_SWAP_HASH(state->buffer, (uint32*) data) \
+	BYTE_SWAP_HASH( ((uint32*) state->buffer), ((uint32*) data) ); \
 	RND12(state); \
 	data += MSG_BLOCK_BYTE_LEN; \
-	BYTE_SWAP_HASH(state->buffer, (uint32*) data) \
-	RND512(state); \ 
-	data += MSG_BLOCK_BYTE_LEN; \ 
+	BYTE_SWAP_HASH( ((uint32*) state->buffer, ((uint32*) data)) \
+	RND512(state); \
+	data += MSG_BLOCK_BYTE_LEN; \
 	memcpy(p, data , 16*sizeof(uint8)); \
 	p[16] = 0x80; \
 	i++; \
 	memset(p+i, 0, 15*sizeof(uint8)); \
 \
-	BYTE_SWAP_HASH(state->buffer, state->buffer) \
+	BYTE_SWAP_HASH( ((uint32*) state->buffer), ((uint32*) state->buffer) ); \
     RND512(state); \
 	\
 	\
@@ -524,7 +518,7 @@ do{ \
     _mm_storeu_si128((__m128i*)&hash[0], t[0]); \
     _mm_storeu_si128((__m128i*)&hash[4], t[1]); \
 \
-	BYTE_SWAP_HASH(b, hash)\
+	BYTE_SWAP_HASH(b, hash);\
     memset(state->buffer, 0, sizeof state->buffer ); \
     RND512(state); \
 \
@@ -545,7 +539,7 @@ do{ \
     _mm_storeu_si128((__m128i*)&hash[0], t[0]); \
     _mm_storeu_si128((__m128i*)&hash[4], t[1]); \
 \/*#pragma unroll for (i=0;i<8;i++) b[8+i] = BYTES_SWAP32(hash[i]);*/
-	BYTE_SWAP_HASH(b+8, hash) \
+	BYTE_SWAP_HASH(((uint8*  (uint8* (b+8)))), ((uint8*) hash) ); \
 }while(0)
 
 
