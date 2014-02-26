@@ -15,8 +15,9 @@
 #include "x5/vect128/nist.h"
 //---echo ----------------
 #define _ECHO_VPERM_
-#define AES-NI
+#define AES_NI
 #include "x5/echo512/ccalik/aesni/hash_api.h"
+
 
 #if defined(__GNUC__)
 	#define  DATA_ALIGN(x,y) x __attribute__ ((aligned(y)))
@@ -24,6 +25,7 @@
 	#define DATA_ALIGN(x,y) __declspec(align(y)) x
 #endif
 /* Move init out of loop, so init once externally, and then use one single memcpy with that bigger memory block */
+
 typedef struct {
 	hashState_luffa luffa1;
 	cubehashParam cubehash1;
@@ -31,6 +33,7 @@ typedef struct {
 	hashState_echo		echo1;
 	hashState_sd simd1;
 } qubithash_context_holder;
+
 
 qubithash_context_holder base_contexts;
 
@@ -42,7 +45,7 @@ void init_qubithash_contexts()
   cubehashInit(&base_contexts.cubehash1,512,16,32);
   //---------------
   sph_shavite512_init(&base_contexts.shavite1);
-   //-------------------------------
+   //----------------------------
   init_echo(&base_contexts.echo1, 512);
   //--simd init----
   init_sd(&base_contexts.simd1,512);
@@ -55,11 +58,10 @@ static void qubithash(void *state, const void *input)
 	DATA_ALIGN(uint32_t hashA[32], 16);
 	uint32_t *hashB = hashA + 16;
 	memcpy(&ctx, &base_contexts, sizeof(base_contexts));
-
 	//-------luffa sse2--------
 //	update_luffa(&ctx.luffa1,(const BitSequence *)input,640);
 //	final_luffa(&ctx.luffa1,(BitSequence *)hashA);	
-	LUFFA_HASH(&ctx.luffa1,(const BitSequence *)input,640,(BitSequence *)hashA);
+	LUFFA_HASH(ctx.luffa1, input,640,hashA);
     //---cubehash sse2---    
 	cubehashUpdate(&ctx.cubehash1,(const byte *)hashA,64);
 	cubehashDigest(&ctx.cubehash1,(byte *)hashB);
@@ -71,8 +73,9 @@ static void qubithash(void *state, const void *input)
 	update_sd(&ctx.simd1,(const BitSequence *)hashA,512);
 	final_sd(&ctx.simd1,(BitSequence *)hashB);
 //-----------------	
-	update_echo (&ctx.echo1, (const BitSequence *) hashB, 512);   
-        final_echo(&ctx.echo1, (BitSequence *)hashA); 
+	update_echo (&ctx.echo1,(const BitSequence *) hashB, 512);
+	final_echo(&ctx.echo1, (BitSequence *) hashA);
+
 
 	memcpy(state, hashA, 32);
 	

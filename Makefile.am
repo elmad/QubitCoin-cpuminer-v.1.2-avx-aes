@@ -20,8 +20,8 @@ minerd_SOURCES	= elist.h miner.h compat.h \
 		  x2/sha2.c x2/sha2-arm.S x2/sha2-x86.S x2/sha2-x64.S \
 		  x2/scrypt.c x2/scrypt-arm.S x2/scrypt-x86.S x2/scrypt-x64.S \
 		  x5/cubehash_sse2.c x5/shavite.c x5/vect128/nist.c x5/vect128/vector.c \
-		  qubit.c x5/luffa_for_sse2.c \
-		  x5/echo512/ccalik/aesni/hash.c
+		  x5/echo512/ccalik/aesni/hash.c  \
+		  qubit.c
 minerd_LDFLAGS	= $(PTHREAD_FLAGS)
 minerd_LDADD	= @LIBCURL@ @JANSSON_LIBS@ @PTHREAD_LIBS@ @WS2_LIBS@
 minerd_CPPFLAGS = @LIBCURL_CPPFLAGS@

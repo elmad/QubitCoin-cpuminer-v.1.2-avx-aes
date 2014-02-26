@@ -19,7 +19,7 @@
 #include "hash_api.h"
 #include "vperm.h"
 
-#define AES_NI
+//#define AES_NI
 #ifdef AES_NI
 #include <wmmintrin.h>
 #else
