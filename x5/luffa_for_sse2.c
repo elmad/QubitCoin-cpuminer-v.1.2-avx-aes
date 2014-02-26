@@ -437,7 +437,7 @@ do{ \
 	STEP_PART(&x[0],&CNS128[10],&tmp[0]); \
 	STEP_PART(&x[0],&CNS128[12],&tmp[0]); \
 	STEP_PART(&x[0],&CNS128[14],&tmp[0]); \
-	\	
+	\
 	MIXTON1024(x[0],x[1],x[2],x[3], chainv[0],chainv[2],chainv[4],chainv[6], \
             x[4],x[5],x[6],x[7], chainv[1],chainv[3],chainv[5],chainv[7]); \
 	\
