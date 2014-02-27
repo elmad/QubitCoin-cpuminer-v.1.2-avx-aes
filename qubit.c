@@ -15,7 +15,7 @@
 #include "x5/vect128/nist.h"
 //---echo ----------------
 #define _ECHO_VPERM_
-#define AES-NI
+#define AES_NI
 #include "x5/echo512/ccalik/aesni/hash_api.h"
 
 #if defined(__GNUC__)

@@ -305,10 +305,10 @@ HashReturn update_luffa(hashState_luffa *state, const uint32 *data, DataLength d
     uint8 *p = (uint8*)state->buffer;
 	for (i=0;i<8;i++) state->buffer[i] = BYTES_SWAP32((data)[i]);
 	rnd512(state); 
-	data += MSG_BLOCK_BYTE_LEN; 
+	data += 8; 
 	for (i=0;i<8;i++) state->buffer[i] = BYTES_SWAP32((data)[i]);
 	rnd512(state); 
-	data += MSG_BLOCK_BYTE_LEN;  
+	data += 8;  
 	for(i=0;i<16;i++) p[i] = ((uint8*) data)[i];
 	p[16] = 0x80;
 	i++;
